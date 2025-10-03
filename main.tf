@@ -43,8 +43,8 @@ data "aws_eks_cluster_auth" "cluster" {
 }
 
 # Resource test: tạo namespace trong EKS
-resource "kubernetes_namespace" "hello" {
+resource "kubernetes_namespace" "daidh-namespace" {
   metadata {
-    name = "hello-world"
+    name = "daidh-namespace"
   }
 }

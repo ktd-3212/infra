@@ -1,7 +1,27 @@
+terraform {
+  required_version = ">= 1.3.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 5.0"
+    }
+  }
+
+  backend "s3" {
+    bucket         = "terraform-daidh-state"
+    key            = "eks/terraform.tfstate"
+    region         = "ap-southeast-1"
+    dynamodb_table = "terraform-lock"
+    encrypt        = true
+  }
+}
+
 provider "aws" {
   region = var.region
 }
 
+# VPC module
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   name   = "eks-vpc"
@@ -15,6 +35,7 @@ module "vpc" {
   single_nat_gateway = true
 }
 
+# EKS module
 module "eks" {
   source          = "terraform-aws-modules/eks/aws"
   version         = "20.8.4"

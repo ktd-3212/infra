@@ -1,0 +1,9 @@
+#infra/
+ #├── backend.tf         # cấu hình remote backend (S3, DynamoDB)
+ #├── main.tf            # khai báo VPC + EKS
+ #├── variables.tf       # biến đầu vào
+ #├── outputs.tf         # output cluster info
+ #└── environments/
+      #├── dev.tfvars
+      #├── staging.tfvars
+      #└── prod.tfvars

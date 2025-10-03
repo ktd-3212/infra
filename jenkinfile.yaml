@@ -9,7 +9,7 @@ ipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/your-repo/infra.git'
+                git branch: 'main', url: 'https://github.com/ktd-3212/infra.git'
             }
         }
 

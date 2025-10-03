@@ -1,5 +1,5 @@
 variable "cluster_name" {
-  description = "Tên EKS cluster"
+  description = "daidh-eks-cluster"
   type        = string
 }
 

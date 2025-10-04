@@ -1,12 +1,13 @@
-variable "region" {
-  description = "AWS Region"
+variable "aws_region" {
+  description = "Region AWS để triển khai tài nguyên"
   type        = string
-  default     = "ap-southeast-1"
+  default     = "ap-southeast-1" # 
 }
+
 variable "aws_az" {
-  description = "Availability Zone để triển khai subnet"
+  description = "Availability Zone để triển khai subnet (ví dụ: ap-southeast-1a)"
   type        = string
-  default     = "ap-southeast-1a" # Thay đổi theo AZ trong Region của bạn
+  default     = "ap-southeast-1a" #
 }
 
 variable "vpc_cidr_block" {
@@ -24,7 +25,7 @@ variable "public_subnet_cidr_block" {
 variable "ami_id" {
   description = "ID của AMI (Amazon Linux 2)"
   type        = string
-  default     = "ami-0b04e67272714c776" # Thay đổi ID này theo Region
+  default     = "ami-088d74defe9802f14" # Thay đổi ID này theo Region
 }
 
 variable "instance_type" {

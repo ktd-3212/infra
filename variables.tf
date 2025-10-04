@@ -35,8 +35,7 @@ variable "instance_type" {
 }
 
 variable "key_name" {
-  description = "Tên cặp khoá SSH (đã có trong AWS)"
+  description = "Tên cặp khoá SSH (Khai báo trong AWS)"
   type        = string
-  # Bạn CẦN thay thế giá trị này bằng tên Key Pair thực tế của mình
   default     = "my-ec2-keypair" 
 }

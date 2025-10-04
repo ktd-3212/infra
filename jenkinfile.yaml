@@ -1,44 +1,57 @@
 pipeline {
     agent any
-    
+
+    // Định nghĩa các biến môi trường
     environment {
         AWS_REGION   = "ap-southeast-1"
-        CLUSTER_NAME = "daidh-eks-cluster"
+        // Tên Credentials ID đã được lưu trong Jenkins
+        AWS_CREDS_ID = 'aws-creds' 
     }
 
     stages {
+        // Stage 1: Checkout mã nguồn
         stage('Checkout') {
             steps {
+                // Đảm bảo Jenkins Agent có quyền truy cập repo
                 git branch: 'main', url: 'https://github.com/ktd-3212/infra.git'
             }
         }
 
-  
+        // Stage 2: Terraform Init (Khởi tạo)
         stage('Terraform Init') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                    sh 'terraform init'
+                // SỬA LỖI: Dùng withCredentials để truyền key/secret
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    // Cần thiết lập biến Region vì Terraform cần nó
+                    withEnv(["AWS_DEFAULT_REGION=${AWS_REGION}"]) {
+                         // THÊM -upgrade để giải quyết xung đột phiên bản Provider
+                         sh 'terraform init -upgrade'
+                    }
                 }
             }
         }
 
+        // Stage 3: Terraform Plan (Lên kế hoạch)
         stage('Terraform Plan') {
             steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                    sh 'terraform plan -out=tfplan -var="cluster_name=$CLUSTER_NAME" -var="region=$AWS_REGION"'
+                // Cấp lại quyền truy cập cho bước Plan
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                    withEnv(["AWS_DEFAULT_REGION=${AWS_REGION}"]) {
+                        // Cú pháp truyền biến chuẩn của Terraform
+                        sh """
+                        terraform plan -out=tfplan \\
+                                       -var="aws_region=${AWS_REGION}"
+                        """
+                    }
                 }
             }
-        }
-
-        stage('Terraform Apply') {
-            steps {
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
-                    sh 'terraform apply -auto-approve tfplan'
+            // Hiển thị kết quả plan ngay sau khi chạy
+            post {
+                always {
+                    // Hiển thị nội dung của file tfplan 
+                    sh 'cat tfplan' 
                 }
             }
         }
     }
 }
-
-
-

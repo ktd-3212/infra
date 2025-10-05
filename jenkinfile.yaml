@@ -1,55 +1,80 @@
 pipeline {
     agent any
 
-    // Định nghĩa các biến môi trường
     environment {
         AWS_REGION   = "ap-southeast-1"
-        // Tên Credentials ID đã được lưu trong Jenkins
         AWS_CREDS_ID = 'aws-creds' 
     }
 
     stages {
-        // Stage 1: Checkout mã nguồn
         stage('Checkout') {
             steps {
-                // Đảm bảo Jenkins Agent có quyền truy cập repo
                 git branch: 'main', url: 'https://github.com/ktd-3212/infra.git'
             }
         }
 
-        // Stage 2: Terraform Init (Khởi tạo)
         stage('Terraform Init') {
             steps {
-                // SỬA LỖI: Dùng withCredentials để truyền key/secret
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
-                    // Cần thiết lập biến Region vì Terraform cần nó
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: AWS_CREDS_ID, 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
                     withEnv(["AWS_DEFAULT_REGION=${AWS_REGION}"]) {
-                         // THÊM -upgrade để giải quyết xung đột phiên bản Provider
-                         sh 'terraform init -upgrade'
+                        sh 'terraform init -upgrade'
                     }
                 }
             }
         }
 
-        // Stage 3: Terraform Plan (Lên kế hoạch)
         stage('Terraform Plan') {
             steps {
-                // Cấp lại quyền truy cập cho bước Plan
-                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: AWS_CREDS_ID, accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: AWS_CREDS_ID, 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
                     withEnv(["AWS_DEFAULT_REGION=${AWS_REGION}"]) {
-                        // Cú pháp truyền biến chuẩn của Terraform
-                        sh """
-                        terraform plan -out=tfplan \\
+                        sh '''
+                        terraform plan -out=tfplan \
                                        -var="aws_region=${AWS_REGION}"
-                        """
+                        '''
                     }
                 }
             }
-            // Hiển thị kết quả plan ngay sau khi chạy
             post {
                 always {
-                    // Hiển thị nội dung của file tfplan 
-                    sh 'cat tfplan' 
+                    sh 'ls -lh tfplan || true'
+                }
+            }
+        }
+
+        // Yêu cầu xác nhận thủ công
+        stage('Approval to Apply') {
+            steps {
+                script {
+                    // Dừng pipeline và hiển thị nút "Proceed" trong Jenkins UI
+                    input message: 'Bạn có chắc muốn APPLY Terraform lên AWS không?', ok: 'Apply now'
+                }
+            }
+        }
+
+        // Stage Apply sau khi được xác nhận
+        stage('Terraform Apply') {
+            steps {
+                withCredentials([[
+                    $class: 'AmazonWebServicesCredentialsBinding', 
+                    credentialsId: AWS_CREDS_ID, 
+                    accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                    secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                ]]) {
+                    withEnv(["AWS_DEFAULT_REGION=${AWS_REGION}"]) {
+                        sh '''
+                        terraform apply -auto-approve tfplan
+                        '''
+                    }
                 }
             }
         }

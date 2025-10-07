@@ -1,9 +1,6 @@
 #infra/
  #├── backend.tf         # cấu hình remote backend (S3, DynamoDB)
- #├── main.tf            # khai báo VPC + EKS
+ #├── main.tf            # khai báo VPC ....
  #├── variables.tf       # biến đầu vào
  #├── outputs.tf         # output cluster info
- #└── environments/
-      #├── dev.tfvars
-      #├── staging.tfvars
-      #└── prod.tfvars
+ git remote set-url origin https://github.com/ktd-3212/infra.git

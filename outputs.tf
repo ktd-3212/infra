@@ -1,5 +1,5 @@
 output "website_url" {
-  description = "Địa chỉ IP công cộng của Webserver"
+  description = "Địa chỉ IP Public Webserver"
   value       = "http://${aws_instance.daidh_webserver.public_ip}"
 }
 

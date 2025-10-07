@@ -112,7 +112,7 @@ resource "aws_instance" "daidh_webserver" {
               sudo yum install httpd -y
               sudo systemctl start httpd
               sudo systemctl enable httpd
-              echo "<h1>Hello from daidh devops 2503 EC2</h1>" > /var/www/html/index.html
+              echo "<h1>Hello from daidh devops 2503</h1>" > /var/www/html/index.html
               EOF
 
   tags = {

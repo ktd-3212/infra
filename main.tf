@@ -1,4 +1,4 @@
-# Cấu hình AWS Provider (Nhà cung cấp Cloud)
+# Cấu hình AWS Provider (Nhà cung cấp)
 terraform {
   required_providers {
     aws = {
@@ -77,13 +77,13 @@ resource "aws_security_group" "daidh_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Ingress Rule: Allow SSH (Port 22)
+  # Ingress Rule: Allow SSH (Port 22) từ mọi nơi 
   ingress {
     description = "SSH from Internet"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["113.161.58.206/24"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Egress Rule: Allow tất cả lưu lượng đi ra
@@ -112,7 +112,7 @@ resource "aws_instance" "daidh_webserver" {
               sudo yum install httpd -y
               sudo systemctl start httpd
               sudo systemctl enable httpd
-              echo "<h1>Hello from daidh devops 2503</h1>" > /var/www/html/index.html
+              echo "<h1>Hello from daidh devops 2503 EC2</h1>" > /var/www/html/index.html
               EOF
 
   tags = {

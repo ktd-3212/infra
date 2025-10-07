@@ -77,13 +77,13 @@ resource "aws_security_group" "daidh_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Ingress Rule: Allow SSH (Port 22) từ mọi nơi 
+  # Ingress Rule: Allow SSH (Port 22)
   ingress {
     description = "SSH from Internet"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["113.161.58.206/24"]
   }
 
   # Egress Rule: Allow tất cả lưu lượng đi ra

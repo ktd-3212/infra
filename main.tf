@@ -1,4 +1,4 @@
-# Cấu hình AWS Provider (Nhà cung cấp)
+# Cấu hình AWS Provider (Nhà cung cấp Cloud)
 terraform {
   required_providers {
     aws = {
